@@ -238,4 +238,5 @@ CREATE TABLE Clients (
 
 
 -- krason nieudacznik
+-- hehehehehhehehehe .|.
 -->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>__
