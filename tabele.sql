@@ -52,7 +52,7 @@ ALTER TABLE ConferenceCosts ADD CONSTRAINT Conferences_ConferenceDay FOREIGN KEY
 -- Table: Workshops
 CREATE TABLE Workshops (
     WorkshopID int NOT NULL,
-    ConferenceDays_ConferenceDaysID int NOT NULL,
+    ConferenceDays_ConferenceDayID int NOT NULL,
     Name varchar(100) NOT NULL,
     StartTime date NOT NULL,
     EndTime date NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE Workshops (
 );
 
 -- Reference: Workshops_ConferenceDays (table: Workshops)
-ALTER TABLE Workshops ADD CONSTRAINT Workshops_ConferenceDays FOREIGN KEY (ConferenceDays_ConferenceDaysID)
+ALTER TABLE Workshops ADD CONSTRAINT Workshops_ConferenceDays FOREIGN KEY (ConferenceDays_ConferenceDayID)
     REFERENCES ConferenceDays (ConferenceDayID)
 
 
