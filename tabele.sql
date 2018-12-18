@@ -52,7 +52,7 @@ ALTER TABLE ConferenceCosts ADD CONSTRAINT Conferences_ConferenceDay FOREIGN KEY
 -- Table: Workshops
 CREATE TABLE Workshops (
     WorkshopID int NOT NULL,
-    ConferenceDays_ConferenceDaysID int NOT NULL,
+    ConferenceDays_ConferenceDayID int NOT NULL,
     Name varchar(100) NOT NULL,
     StartTime date NOT NULL,
     EndTime date NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE Workshops (
 );
 
 -- Reference: Workshops_ConferenceDays (table: Workshops)
-ALTER TABLE Workshops ADD CONSTRAINT Workshops_ConferenceDays FOREIGN KEY (ConferenceDays_ConferenceDaysID)
+ALTER TABLE Workshops ADD CONSTRAINT Workshops_ConferenceDays FOREIGN KEY (ConferenceDays_ConferenceDayID)
     REFERENCES ConferenceDays (ConferenceDayID)
 
 
@@ -229,8 +229,6 @@ CREATE TABLE Clients (
     Name varchar(100) NOT NULL,
     Surname varchar(100) NULL,
     Email varchar(100) NOT NULL,
-    Password varchar(32) NOT NULL,
     CONSTRAINT ProperEmailClient CHECK (EMail LIKE '^\S+[@]\S+[.]\S+$'),
-    CONSTRAINT ProperPassword CHECK (LEN(Password) > 8),
     CONSTRAINT Clients_pk PRIMARY KEY (ClientID)
 );
