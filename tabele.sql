@@ -229,8 +229,6 @@ CREATE TABLE Clients (
     Name varchar(100) NOT NULL,
     Surname varchar(100) NULL,
     Email varchar(100) NOT NULL,
-    Password varchar(32) NOT NULL,
     CONSTRAINT ProperEmailClient CHECK (EMail LIKE '^\S+[@]\S+[.]\S+$'),
-    CONSTRAINT ProperPassword CHECK (LEN(Password) > 8),
     CONSTRAINT Clients_pk PRIMARY KEY (ClientID)
 );
