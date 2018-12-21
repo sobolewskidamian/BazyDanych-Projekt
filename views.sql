@@ -1,7 +1,7 @@
 create view view_MostPopularWorkshops as
 select top 10 conf.name as ConferenceName,w.workshopid,w.name,isnull(sum(wp.workshopparticipantid),0) as popularnosc
 from Workshops as w
-inner join conferencedays as cd on cd.conferencedayid=w.ConferenceDays_ConferenceDayID
+inner join conferencedays as cd on cd.conferencedayid=w.ConferenceDays_ConferenceDaysID
 inner join conferences as conf on conf.conferenceid=cd.Conferences_ConferenceID
 inner join WorkshopBooking as wb on wb.Workshops_WorkshopID=w.WorkshopID
 inner join WorkshopParticipants as wp on wp.WorkshopBooking_WorkshopBookingID=wb.workshopbookingid
@@ -30,7 +30,7 @@ order by popularity desc
 create view view_MostPopularWorkshopsByStudents as
 select top 10 conf.name as ConferenceName,w.workshopid,w.name,isnull(sum(wp.workshopparticipantid),0) as popularnosc
 from Workshops as w
-inner join conferencedays as cd on cd.conferencedayid=w.ConferenceDays_ConferenceDayID
+inner join conferencedays as cd on cd.conferencedayid=w.ConferenceDays_ConferenceDaysID
 inner join conferences as conf on conf.conferenceid=cd.Conferences_ConferenceID
 inner join WorkshopBooking as wb on wb.Workshops_WorkshopID=w.WorkshopID
 inner join WorkshopParticipants as wp on wp.WorkshopBooking_WorkshopBookingID=wb.workshopbookingid
@@ -46,7 +46,7 @@ inner join ConferenceCosts as cc on cc.Conferences_ConferenceID=c.ConferenceID
 inner join (select con.ConferenceID, (
     select isnull(sum(w.Cost),0) as koszta
     from conferencedays as cd
-    inner join Workshops as w on w.ConferenceDays_ConferenceDayID=cd.ConferenceDayID
+    inner join Workshops as w on w.ConferenceDays_ConferenceDaysID=cd.ConferenceDayID
     where cd.Conferences_ConferenceID=con.ConferenceID) as koszt
            from Conferences as con) as a on c.ConferenceID=a.ConferenceID
 order by cena
@@ -54,7 +54,7 @@ order by cena
 create view view_MostProfitableWorkshops as
 select top 10 c.name as NazwaKonferencji,w.name,w.cost
 from Workshops as w
-inner join ConferenceDays as cd on cd.ConferenceDayID=w.ConferenceDays_ConferenceDayID
+inner join ConferenceDays as cd on cd.ConferenceDayID=w.ConferenceDays_ConferenceDaysID
 inner join Conferences as c on c.ConferenceID=cd.Conferences_ConferenceID
 order by w.cost desc
 
@@ -64,13 +64,15 @@ c.name as ConferenceName,
 w.workshopid,
 w.name,
 w.numberofparticipants as Miejsca,
-isnull ( SUM(wb.NumberOfParticipants) , 0) as Zajete,
+isnull ( SUM(wp.WorkshopParticipantID) , 0) as Zajete,
 w.numberofparticipants - isnull ( SUM(wb.NumberOfParticipants) , 0) as WolneMiejsca
 FROM workshops as w
 JOIN WorkshopBooking as wb
 ON wb.workshops_workshopid = w.workshopid
+join WorkshopParticipants as wp
+    on wp.WorkshopBooking_WorkshopBookingID=wb.WorkshopBookingID
 JOIN conferencedays as cd
-on cd.conferencedayid = w.ConferenceDays_ConferenceDayID
+on cd.conferencedayid = w.conferencedays_conferencedaysid
 JOIN conferences as c on c.conferenceid = cd.conferences_conferenceid
 GROUP BY w.workshopid, w.name, w.numberofparticipants,
 c.name
