@@ -9,7 +9,6 @@ BEGIN
  VALUES (@Name, @Place, @DiscountForStudents, @Description);
 END
 
-
 CREATE PROCEDURE PROCEDURE_AddConferenceDay(
  @ConferenceID INT,
  @Date DATE,
@@ -48,11 +47,21 @@ END
 
 
 CREATE PROCEDURE PROCEDURE_RemoveConference(
- @ConferenceDayID INT)
+ @ConferenceID INT)
  AS
+IF NOT EXISTS(
+ SELECT * FROM Conferences
+ WHERE @ConferenceID = ConferenceID
+)
+BEGIN
+ SELECT 'Nie znaleziono konferencji'
+END
+
+ELSE
+
 BEGIN
  DELETE FROM Conferences
- WHERE Conferences.ConferenceID = @ConferenceDayID;
+ WHERE Conferences.ConferenceID = @ConferenceID;
 END
 
 
@@ -64,10 +73,16 @@ CREATE PROCEDURE PROCEDURE_UpdateConferenceDetails(
  @Description VARCHAR(200))
  AS
 BEGIN
- IF EXISTS(
+ IF NOT EXISTS(
   SELECT * FROM Conferences
   WHERE @ConferenceID = ConferenceID
  )
+ BEGIN
+  SELECT 'Nie znaleziono konferencji'
+ END
+
+ ELSE
+
  BEGIN
   IF @Name IS NOT NULL
   BEGIN
@@ -75,24 +90,40 @@ BEGIN
    SET Name = @Name
    WHERE ConferenceID = @ConferenceID;
   END
+  ELSE
+   BEGIN
+    SELECT 'ConferenceID is null'
+   END
   IF @DiscountForStudents IS NOT NULL
   BEGIN
    UPDATE Conferences
    SET DiscountForStudents = @DiscountForStudents
    WHERE ConferenceID = @ConferenceID;
   END
+  ELSE
+   BEGIN
+    SELECT 'DiscountForStudents is null'
+   END
   IF @Place IS NOT NULL
   BEGIN
    UPDATE Conferences
    SET Place = @Place
    WHERE ConferenceID = @ConferenceID;
   END
+  ELSE
+   BEGIN
+    SELECT 'Place is null'
+   END
   IF @Description IS NOT NULL
   BEGIN
    UPDATE Conferences
    SET Description = @Description
    WHERE ConferenceID = @ConferenceID;
   END
+  ELSE
+   BEGIN
+    SELECT 'Description is null'
+   END
  END
 END
 
@@ -105,11 +136,17 @@ CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
  @Cost DECIMAL(9,2),
  @NumberOfParticipants INT)
  AS
-BEGIN
- IF EXISTS(
+ BEGIN
+ IF NOT EXISTS(
   SELECT * FROM Workshops
   WHERE @WorkshopID = WorkshopID
  )
+  BEGIN
+  SELECT 'Nie znaleziono warsztatu'
+ END
+
+ ELSE
+
  BEGIN
   IF @Name IS NOT NULL
   BEGIN
@@ -117,11 +154,19 @@ BEGIN
    SET Name = @Name
    WHERE WorkshopID = @WorkshopID;
   END
+  ELSE
+  BEGIN
+   SELECT 'WorkshopID is null'
+  END
   IF @StartTime IS NOT NULL
   BEGIN
    UPDATE Workshops
    SET StartTime = @StartTime
    WHERE WorkshopID = @WorkshopID;
+  END
+  ELSE
+  BEGIN
+   SELECT 'StartTime is null'
   END
   IF @EndTime IS NOT NULL
   BEGIN
@@ -129,17 +174,29 @@ BEGIN
    SET EndTime = @EndTime
    WHERE WorkshopID = @WorkshopID;
   END
+  ELSE
+  BEGIN
+   SELECT 'EndTime is null'
+  END
   IF @Cost IS NOT NULL
   BEGIN
    UPDATE Workshops
    SET Cost = @Cost
    WHERE WorkshopID = @WorkshopID;
   END
+  ELSE
+  BEGIN
+   SELECT 'Cost is null'
+  END
   IF @NumberOfParticipants IS NOT NULL
   BEGIN
    UPDATE Workshops
    SET NumberOfParticipants = @NumberOfParticipants
    WHERE WorkshopID = @WorkshopID;
+  END
+  ELSE
+  BEGIN
+   SELECT 'NumberOfParticipants is null'
   END
  END
 END
@@ -151,6 +208,17 @@ CREATE PROCEDURE PROCEDURE_AddConferenceBooking(
  @BookingDate DATE)
  AS
 BEGIN
+ IF NOT EXISTS(
+  SELECT * FROM Conferences
+  WHERE @ConferenceID = ConferenceID
+ )
+  BEGIN
+  SELECT 'Nie znaleziono konferencji'
+ END
+
+ ELSE
+
+ BEGIN
  IF @BookingDate IS NULL
   BEGIN
    INSERT INTO ConferenceBooking (Conferences_ConferenceID, Clients_ClientID)
@@ -161,6 +229,7 @@ BEGIN
    INSERT INTO ConferenceBooking (Conferences_ConferenceID, BookingDate, Clients_ClientID)
    VALUES (@ConferenceID, @BookingDate, @ClientID);
   END
+ END
 END
 
 
@@ -171,6 +240,20 @@ CREATE PROCEDURE PROCEDURE_AddConferenceDayBooking(
  @NumberOfStudents INT)
  AS
 BEGIN
+ IF NOT EXISTS(
+  SELECT * FROM ConferenceDays
+  WHERE @ConferenceDayID = ConferenceDayID
+ ) OR NOT EXISTS(
+  SELECT * FROM ConferenceBooking
+  WHERE @ConferenceBookingID = ConferenceBookingID
+ )
+  BEGIN
+  SELECT 'Nie znaleziono ConferenceDayID lub ConferenceBookingID'
+ END
+
+ ELSE
+
+ BEGIN
  IF @NumberOfStudents IS NULL
   BEGIN
    INSERT INTO ConferenceDayBooking (ConferenceDays_ConferenceDayID, ConferenceBooking_ConferenceBookingID, NumberOfParticipants)
@@ -181,6 +264,7 @@ BEGIN
    INSERT INTO ConferenceDayBooking (ConferenceDays_ConferenceDayID, ConferenceBooking_ConferenceBookingID, NumberOfParticipants, NumberOfStudents)
    VALUES (@ConferenceDayID, @ConferenceBookingID, @NumberOfParticipants, @NumberOfStudents);
   END
+ END
 END
 
 
@@ -191,6 +275,20 @@ CREATE PROCEDURE PROCEDURE_AddWorkshopBooking(
  @NumberOfParticipants INT)
  AS
 BEGIN
+ IF NOT EXISTS(
+  SELECT * FROM Workshops
+  WHERE @WorkshopID = WorkshopID
+ ) OR NOT EXISTS(
+  SELECT * FROM ConferenceDayBooking
+  WHERE @ConferenceDayBookingID = ConferenceDayBookingID
+ )
+  BEGIN
+  SELECT 'Nie znaleziono WorkshopID lub ConferenceDayBookingID'
+ END
+
+ ELSE
+
+ BEGIN
  IF @BookingDate IS NULL
   BEGIN
    INSERT INTO WorkshopBooking (Workshops_WorkshopID, ConferenceDayBooking_ConferenceDayBookingID, NumberOfParticipants)
@@ -201,6 +299,7 @@ BEGIN
    INSERT INTO WorkshopBooking (Workshops_WorkshopID, ConferenceDayBooking_ConferenceDayBookingID, BookingDate, NumberOfParticipants)
    VALUES (@WorkshopID, @ConferenceDayBookingID, @BookingDate, @NumberOfParticipants);
   END
+ END
 END
 
 
@@ -210,15 +309,27 @@ CREATE PROCEDURE PROCEDURE_AddDayParticipant(
  @StudentID VARCHAR(6))
  AS
 BEGIN
-  IF EXISTS(
+  IF NOT EXISTS(
    SELECT * FROM ConferenceDayBooking
    WHERE @ConferenceDayBookingID = ConferenceDayBookingID
   )
   BEGIN
-   IF EXISTS(
+   SELECT 'Nie znaleziono ConferenceDayBookingID'
+  END
+
+  ELSE
+
+  BEGIN
+   IF NOT EXISTS(
     SELECT * FROM Participants
     WHERE @ParticipantID = ParticipantID
    )
+   BEGIN
+    SELECT 'Nie znaleziono ParticipantID'
+   END
+
+   ELSE
+
    BEGIN
     INSERT INTO DayParticipants (ConferenceDayBooking_ConferenceDayBookingID, Participants_ParticipantID, StudentID)
     VALUES (@ConferenceDayBookingID, @ParticipantID, @StudentID);
@@ -232,15 +343,27 @@ CREATE PROCEDURE PROCEDURE_AddWorkshopParticipant(
  @DayParticipantID INT)
  AS
 BEGIN
-  IF EXISTS(
+  IF NOT EXISTS(
    SELECT * FROM WorkshopBooking
    WHERE @WorkshopBookingID = WorkshopBookingID
   )
   BEGIN
-   IF EXISTS(
+   SELECT 'Nie znaleziono WorkshopBookingID'
+  END
+
+  ELSE
+
+  BEGIN
+   IF NOT EXISTS(
     SELECT * FROM Participants
     WHERE @DayParticipantID = ParticipantID
    )
+   BEGIN
+    SELECT 'Nie znaleziono ParticipantID'
+   END
+
+   ELSE
+
    BEGIN
     INSERT INTO WorkshopParticipants (WorkshopBooking_WorkshopBookingID, DayParticipants_DayParticipantID)
     VALUES (@WorkshopBookingID, @DayParticipantID);
@@ -280,11 +403,17 @@ CREATE PROCEDURE PROCEDURE_CancelConferenceBooking(
  @ConferenceBookingID INT)
  AS
 BEGIN
- IF EXISTS(
+ IF NOT EXISTS(
    SELECT * FROM ConferenceBooking
    WHERE @ConferenceBookingID = ConferenceBookingID
  )
- AND (SELECT IsCanceled FROM ConferenceBooking WHERE @ConferenceBookingID = ConferenceBookingID)=0
+ OR NOT (SELECT IsCanceled FROM ConferenceBooking WHERE @ConferenceBookingID = ConferenceBookingID)=0
+ BEGIN
+  SELECT 'Nie znaleziono ConferenceBookingID lub rezerwacja została już wcześniej anulowana'
+ END
+
+ ELSE
+
  BEGIN
   UPDATE ConferenceBooking
   SET IsCanceled = 1
@@ -297,14 +426,116 @@ CREATE PROCEDURE PROCEDURE_CancelConferenceDayBooking(
  @ConferenceDayBookingID INT)
  AS
 BEGIN
- IF EXISTS(
+ IF NOT EXISTS(
    SELECT * FROM ConferenceDayBooking
    WHERE @ConferenceDayBookingID = ConferenceDayBookingID
  )
- AND (SELECT IsCancelled FROM ConferenceDayBooking WHERE @ConferenceDayBookingID = ConferenceDayBookingID)=0
+ OR NOT (SELECT IsCancelled FROM ConferenceDayBooking WHERE @ConferenceDayBookingID = ConferenceDayBookingID)=0
+ BEGIN
+  SELECT 'Nie znaleziono ConferenceDayBookingID lub rezerwacja została już wcześniej anulowana'
+ END
+
+ ELSE
+
  BEGIN
   UPDATE ConferenceDayBooking
   SET IsCancelled = 1
   WHERE @ConferenceDayBookingID = ConferenceDayBookingID;
+ END
+END
+
+
+
+CREATE PROCEDURE PROCEDURE_UpdateWorkShopNumberOfParticipants(
+ @WorkshopID INT,
+ @NumberOfParticipants INT)
+ AS
+BEGIN
+ IF NOT EXISTS(
+   SELECT * FROM Workshops
+   WHERE @WorkshopID = WorkshopID
+ )
+ BEGIN
+  SELECT 'Nie znaleziono WorkshopID'
+ END
+
+ ELSE
+
+ BEGIN
+  UPDATE Workshops
+  SET NumberOfParticipants = @NumberOfParticipants
+  WHERE @WorkshopID = WorkshopID;
+ END
+END
+
+
+CREATE PROCEDURE PROCEDURE_UpdateConferenceDayNumberOfParticipants(
+ @ConferenceDayID INT,
+ @NumberOfParticipants INT)
+ AS
+BEGIN
+ IF NOT EXISTS(
+   SELECT * FROM ConferenceDays
+   WHERE @ConferenceDayID = ConferenceDayID
+ )
+ BEGIN
+  SELECT 'Nie znaleziono ConferenceDayID'
+ END
+
+ ELSE
+
+ BEGIN
+  UPDATE ConferenceDays
+  SET NumberOfParticipants = @NumberOfParticipants
+  WHERE @ConferenceDayID = ConferenceDayID;
+ END
+END
+
+
+CREATE PROCEDURE PROCEDURE_ShowConferenceDaysAmountOfParticipants(
+ @ConferenceID INT)
+ AS
+BEGIN
+ IF EXISTS(
+   SELECT * FROM Conferences
+   WHERE @ConferenceID = ConferenceID
+ )
+ BEGIN
+  SELECT 'Nie znaleziono ConferenceID'
+ END
+
+ ELSE
+
+ BEGIN
+  SELECT ConferenceDayID, Date, SUM(ConferenceDayBooking.NumberOfParticipants) AS Participants, SUM(NumberOfStudents) as Students FROM ConferenceDays
+  INNER JOIN ConferenceDayBooking
+      ON Conferences_ConferenceID = ConferenceDays_ConferenceDayID
+  WHERE Conferences_ConferenceID = @ConferenceID AND IsCancelled = 0
+  GROUP BY ConferenceDayID, Date
+ END
+END
+
+
+
+CREATE PROCEDURE PROCEDURE_ShowListOfEventsOfConference(
+ @ConferenceID INT)
+ AS
+BEGIN
+ IF EXISTS(
+   SELECT * FROM Conferences
+   WHERE @ConferenceID = ConferenceID
+ )
+ BEGIN
+  SELECT 'Nie znaleziono ConferenceID'
+ END
+
+ ELSE
+
+ BEGIN
+  SELECT ConferenceDayID, Date, SUM(ConferenceDayBooking.NumberOfParticipants) AS Participants, SUM(NumberOfStudents) as Students FROM ConferenceDays
+  INNER JOIN ConferenceDayBooking
+      ON ConferenceDayID = ConferenceDays_ConferenceDayID
+  WHERE Conferences_ConferenceID = @ConferenceID AND IsCancelled = 0
+  GROUP BY ConferenceDayID, Date
  END
 END
