@@ -1,6 +1,6 @@
 -- Table: Conferences
 CREATE TABLE Conferences (
-    ConferenceID int NOT NULL,
+    ConferenceID int NOT NULL IDENTITY,
     Name varchar(100) NOT NULL,
     Place varchar(100) NOT NULL,
     DiscountForStudents float NOT NULL DEFAULT 0,
@@ -14,7 +14,7 @@ CREATE TABLE Conferences (
 
 -- Table: ConferenceDays
 CREATE TABLE ConferenceDays (
-    ConferenceDayID int NOT NULL,
+    ConferenceDayID int NOT NULL IDENTITY,
     Conferences_ConferenceID int NOT NULL,
     Date date NOT NULL,
     NumberOfParticipants int NOT NULL,
@@ -32,7 +32,7 @@ ALTER TABLE ConferenceDays ADD CONSTRAINT Conferences_ConferenceDays FOREIGN KEY
 
 -- Table: ConferenceCosts
 CREATE TABLE ConferenceCosts (
-    ConferenceCostID int NOT NULL,
+    ConferenceCostID int NOT NULL IDENTITY,
     Conferences_ConferenceID int NOT NULL,
     Cost decimal(9,2) NOT NULL,
     DateFrom date NOT NULL,
@@ -51,7 +51,7 @@ ALTER TABLE ConferenceCosts ADD CONSTRAINT Conferences_ConferenceDay FOREIGN KEY
 
 -- Table: Workshops
 CREATE TABLE Workshops (
-    WorkshopID int NOT NULL,
+    WorkshopID int NOT NULL IDENTITY,
     ConferenceDays_ConferenceDayID int NOT NULL,
     Name varchar(100) NOT NULL,
     StartTime date NOT NULL,
@@ -75,7 +75,7 @@ ALTER TABLE Workshops ADD CONSTRAINT Workshops_ConferenceDays FOREIGN KEY (Confe
 
 -- Table: ConferenceBooking
 CREATE TABLE ConferenceBooking (
-    ConferenceBookingID int NOT NULL,
+    ConferenceBookingID int NOT NULL IDENTITY,
     Clients_ClientID int NOT NULL,
     Conferences_ConferenceID int NOT NULL,
     BookingDate date NOT NULL DEFAULT getdate(),
@@ -96,7 +96,7 @@ ALTER TABLE ConferenceBooking ADD CONSTRAINT BookingConference_Conferences FOREI
 
 -- Table: ConferenceDayBooking
 CREATE TABLE ConferenceDayBooking (
-    ConferenceDayBookingID int NOT NULL,
+    ConferenceDayBookingID int NOT NULL IDENTITY,
     ConferenceBooking_ConferenceBookingID int NOT NULL,
     ConferenceDays_ConferenceDayID int NOT NULL,
     BookingDate date NOT NULL DEFAULT getdate(),
@@ -123,7 +123,7 @@ ALTER TABLE ConferenceDayBooking ADD CONSTRAINT ConferenceDayBooking_ConferenceD
 
 -- Table: WorkshopBooking
 CREATE TABLE WorkshopBooking (
-    WorkshopBookingID int NOT NULL,
+    WorkshopBookingID int NOT NULL IDENTITY,
     Workshops_WorkshopID int NOT NULL,
     ConferenceDayBooking_ConferenceDayBookingID int NOT NULL,
     BookingDate date NOT NULL DEFAULT getdate(),
@@ -148,7 +148,7 @@ ALTER TABLE WorkshopBooking ADD CONSTRAINT WorkshopBooking_Workshops FOREIGN KEY
 
 -- Table: Payments
 CREATE TABLE Payments (
-    PaymentID int NOT NULL,
+    PaymentID int NOT NULL IDENTITY,
     ConferenceBooking_ConferenceBookingID int NOT NULL,
     Amount decimal(9,2) NOT NULL,
     PayDate date NOT NULL DEFAULT getdate(),
@@ -166,7 +166,7 @@ ALTER TABLE Payments ADD CONSTRAINT Payments_ConferenceBooking FOREIGN KEY (Conf
 
 -- Table: Participants
 CREATE TABLE Participants (
-    ParticipantID int NOT NULL,
+    ParticipantID int NOT NULL IDENTITY,
     FirstName varchar(40) NOT NULL,
     LastName varchar(40) NOT NULL,
     Email varchar(100) NOT NULL,
@@ -174,7 +174,6 @@ CREATE TABLE Participants (
     City varchar(40) NOT NULL,
     PostalCode varchar(10) NOT NULL,
     County varchar(40) NOT NULL,
-    CONSTRAINT ProperEmail CHECK (Email LIKE '^\S+[@]\S+[.]\S+$'),
     CONSTRAINT Participants_pk PRIMARY KEY (ParticipantID)
 );
 
@@ -184,7 +183,7 @@ CREATE TABLE Participants (
 
 -- Table: DayParticipants
 CREATE TABLE DayParticipants (
-    DayParticipantID int NOT NULL,
+    DayParticipantID int NOT NULL IDENTITY,
     ConferenceDayBooking_ConferenceDayBookingID int NOT NULL,
     Participants_ParticipantID int NOT NULL,
     StudentID varchar(6) NULL DEFAULT null,
@@ -206,7 +205,7 @@ ALTER TABLE DayParticipants ADD CONSTRAINT Participants_DayParticipants FOREIGN 
 
 -- Table: WorkshopParticipants
 CREATE TABLE WorkshopParticipants (
-    WorkshopParticipantID int NOT NULL,
+    WorkshopParticipantID int NOT NULL IDENTITY,
     WorkshopBooking_WorkshopBookingID int NOT NULL,
     DayParticipants_DayParticipantID int NOT NULL,
     CONSTRAINT WorkshopParticipants_pk PRIMARY KEY (WorkshopParticipantID)
@@ -224,11 +223,10 @@ ALTER TABLE WorkshopParticipants ADD CONSTRAINT WorkshopParticipants_WorkshopBoo
 
 -- Table: Clients
 CREATE TABLE Clients (
-    ClientID int NOT NULL,
+    ClientID int NOT NULL IDENTITY,
     IsCompany bit NOT NULL,
     Name varchar(100) NOT NULL,
     Surname varchar(100) NULL,
     Email varchar(100) NOT NULL,
-    CONSTRAINT ProperEmailClient CHECK (EMail LIKE '^\S+[@]\S+[.]\S+$'),
     CONSTRAINT Clients_pk PRIMARY KEY (ClientID)
 );
