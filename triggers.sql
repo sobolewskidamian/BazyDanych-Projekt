@@ -55,7 +55,7 @@ AS
               WHERE (a.StudentID IS NULL
                        AND dbo.FUNCTION_FreeDayPlacesForStudents(a.ConferenceDayBooking_ConferenceDayBookingID) < 0)
                  OR (a.StudentID IS NULL
-                       AND dbo.FUNCTION_FreeDayPlacesForParticipant(a.ConferenceDayBooking_ConferenceDayBookingID) < 0))
+                       AND dbo.FUNCTION_FreeDayPlacesForParticipants(a.ConferenceDayBooking_ConferenceDayBookingID) < 0))
       BEGIN
         SELECT 'Wszystkie miejsca klienta zostały już zarezerwowane'
       END
