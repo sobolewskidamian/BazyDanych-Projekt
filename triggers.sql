@@ -5,11 +5,11 @@ CREATE TRIGGER TRIGGER_TooFewFreePlacesForDayBooking
 AS
   BEGIN
     SET NOCOUNT ON
-    IF EXISTS(SELECT * FROM inserted as a WHERE dbo.FUNCTION_CheckFreeDayPlaces(a.ConferenceDays_ConferenceDayID) < 0)
+    IF EXISTS(SELECT * FROM inserted as a WHERE dbo.FUNCTION_FreeDayPlaces(a.ConferenceDays_ConferenceDayID) < 0)
       BEGIN
         SELECT 'Brak wystarczajacej liczby miejsc w dniu konferencji'
       END
-  END
+  END;
 
 
 -- Sprawdenie wystarczajacej liczby miejsc na warsztacie
@@ -19,11 +19,11 @@ CREATE TRIGGER TRIGGER_TooFewFreePlacesForWorkshopBooking
 AS
   BEGIN
     SET NOCOUNT ON
-    IF EXISTS(SELECT * FROM inserted as a WHERE dbo.FUNCTION_CheckFreeWorkshopPlaces(a.Workshops_WorkshopID) < 0)
+    IF EXISTS(SELECT * FROM inserted as a WHERE dbo.FUNCTION_FreeWorkshopPlaces(a.Workshops_WorkshopID) < 0)
       BEGIN
         SELECT 'Brak wystarczajacej liczby miejsc w warsztacie'
       END
-  END
+  END;
 
 
 --Blokuje rezerwację na warsztat, jeżeli klient zarezerwował mniej miejsc na dzień niż warsztat.
@@ -33,11 +33,11 @@ CREATE TRIGGER TRIGGER_LessPlacesForDayThanForWorkshop
 AS
   BEGIN
     SET NOCOUNT ON;
-    IF EXISTS(SELECT * FROM inserted AS a WHERE dbo.FUNCTION_CheckFreeDayPlaces(a.ConferenceDays_ConferenceDayID) < 0)
+    IF EXISTS(SELECT * FROM inserted AS a WHERE dbo.FUNCTION_FreeDayPlaces(a.ConferenceDays_ConferenceDayID) < 0)
       BEGIN
         SELECT 'Klient zarezerwował mniej miejsc na dzień niż na warsztat'
       END
-  END
+  END;
 
 
 --Blokuje zapis uczestnika na dzień konferencji, jeżeli wszystkie miejsca od klienta są już zajęte.
@@ -50,13 +50,13 @@ AS
     IF EXISTS(SELECT *
               FROM inserted AS a
               WHERE (a.StudentID IS NULL
-                       AND dbo.FUNCTION_BookingDayFreeStudentPlaces(a.ConferenceDayBooking_ConferenceDayBookingID) < 0)
+                       AND dbo.FUNCTION_FreeDayPlacesForStudents(a.ConferenceDayBooking_ConferenceDayBookingID) < 0)
                  OR (a.StudentID IS NULL
-                       AND dbo.FUNCTION_BookingDayFreeNormalPlaces(a.ConferenceDayBooking_ConferenceDayBookingID) < 0))
+                       AND dbo.FUNCTION_FreeDayPlacesForParticipant(a.ConferenceDayBooking_ConferenceDayBookingID) < 0))
       BEGIN
         SELECT 'Wszystkie miejsca klienta zostały już zarezerwowane'
       END
-  END
+  END;
 
 
 --Blokuje zapis uczestnika na warsztat, jeżeli wszystkie zarezerwowane miejsca są już zajęte.
@@ -68,11 +68,11 @@ AS
     SET NOCOUNT ON;
     IF EXISTS(SELECT *
               FROM inserted AS a
-              WHERE dbo.FUNCTION_BookingWorkshopFreePlaces(a.WorkshopBooking_WorkshopBookingID) < 0)
+              WHERE dbo.FUNCTION_FreeWorkshopPlaces(a.WorkshopBooking_WorkshopBookingID) < 0)
       BEGIN
         SELECT 'Wszystkie zarezerwowane miejsca są już zajęte'
       END
-  END
+  END;
 
 
 --Pilnuje czy po zmniejszeniu liczby miejsc na dzień konferencji zarezerwowane miejsca mieszczą się w nowym limicie.
@@ -90,7 +90,7 @@ AS
       BEGIN
         SELECT 'Po zmniejszeniu liczby miejsc na dzień konferencji zarezerwowane miejsca nie mieszczą się w nowym limicie'
       END
-  END
+  END;
 
 
 --Pilnuje czy po zmniejszeniu liczby miejsc na warsztat zarezerwowane miejsca mieszczą sie w nowym limicie.
@@ -108,7 +108,7 @@ AS
       BEGIN
         SELECT 'Po zmniejszeniu liczby miejsc na warsztat zarezerwowane miejsca nie mieszczą się w nowym limicie'
       END
-  END
+  END;
 
 
 --Sprawdza, czy rezerwowany jest dzień z konferencji odpowiadającej rezerwacji na konferencję. Tzn. klient zarezerwował jedną konferencję i nie próbuje przypisać do niej rezerwację na dzień z innej konferencji.
@@ -129,7 +129,7 @@ AS
       BEGIN
         SELECT 'Klient próbuje przepisać do konferencji rezerwację dnia z innej konferencji'
       END
-  END
+  END;
 
 
 --Sprawdza, czy rezerwacja danego dnia konferencji już istnieje.
@@ -141,14 +141,14 @@ AS
     SET NOCOUNT ON;
     IF EXISTS(SELECT *
               FROM inserted AS a
-                     INNER JOIN ConferenceDayBooking AS cbd
+                     LEFT JOIN ConferenceDayBooking AS cbd
                        ON a.ConferenceBooking_ConferenceBookingID = cbd.ConferenceBooking_ConferenceBookingID
                             AND a.ConferenceDays_ConferenceDayID = cbd.ConferenceDays_ConferenceDayID
               WHERE a.ConferenceBooking_ConferenceBookingID != cbd.ConferenceBooking_ConferenceBookingID)
       BEGIN
         SELECT 'Rezerwacja danego dnia konferencji nie istnieje'
       END
-  END
+  END;
 
 
 --Sprawdza, czy rezerwowany jest warsztat z dnia odpowiadającemu rezerwacji na dzień.
@@ -170,6 +170,7 @@ AS
         SELECT 'Klient próbuje przepisać do warsztat z innego dnia niż jego rezerwacja'
       END
   END
+  GO
 
 
 --Blokuje zapisanie się na warsztat, jeżeli uczestnik jest zapisany na inny warsztat trwający w tym samym czasie
@@ -182,7 +183,7 @@ AS
     DECLARE @Cost DECIMAL(9, 2) = (SELECT a.Cost FROM inserted AS a);
     IF EXISTS(SELECT *
               FROM inserted AS a
-                     INNER JOIN ConferenceCosts AS cc on a.Conferences_ConferenceID = cc.Conferences_ConferenceID
+                     LEFT JOIN ConferenceCosts AS cc on a.Conferences_ConferenceID = cc.Conferences_ConferenceID
               WHERE ((cc.DateFrom < a.DateFrom AND a.DateFrom < cc.dateto)
                        OR (a.DateFrom < cc.DateFrom AND cc.DateTo < a.DateTo)
                        OR (cc.DateFrom >= a.DateFrom AND a.DateTo >= cc.DateTo)
@@ -193,14 +194,14 @@ AS
       END
     ELSE
       BEGIN
-        DECLARE @PreviousCost DECIMAL(9, 2) = (SELECT TOP 1 *
+        DECLARE @PreviousCost DECIMAL(9, 2) = (SELECT TOP 1 a.Cost
                                                FROM inserted as a
                                                       INNER JOIN ConferenceCosts as cc
                                                         on cc.ConferenceCostID = a.ConferenceCostID
                                                WHERE cc.Conferences_ConferenceID = a.Conferences_ConferenceID
                                                  AND cc.DateTo < a.DateFrom
                                                ORDER BY cc.DateFrom DESC)
-        DECLARE @NextCost DECIMAL(9, 2) = (SELECT TOP 1 *
+        DECLARE @NextCost DECIMAL(9, 2) = (SELECT TOP 1 a.Cost
                                            FROM inserted as a
                                                   INNER JOIN ConferenceCosts as cc
                                                     on cc.ConferenceCostID = a.ConferenceCostID
@@ -216,3 +217,4 @@ AS
           END
       END
   END
+GO

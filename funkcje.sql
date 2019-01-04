@@ -36,6 +36,15 @@ GROUP BY cd.conferencedayid, cdb.NumberOfStudents
 );
 END;
 
+
+create function FUNCTION_FreeDayPlaces(
+@ConferenceDayID INTEGER
+)
+RETURNS INTEGER AS
+BEGIN
+RETURN (FUNCTION_FreeDayPlacesForParticipants(@ConferenceDayID)+FUNCTION_FreeDayPlacesForStudents(@ConferenceDayID));
+END;
+
 --FUNCTION FREEWORKSHOPPLACES
 --Returns number of free places
 --(counting client reservations) for given workshop
