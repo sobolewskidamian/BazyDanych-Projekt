@@ -18,6 +18,8 @@ WHERE cd.conferencedayid = @ConferenceDayID and dp.StudentID is null
 GROUP BY cd.conferencedayid, cdb.numberofparticipants
 );
 END;
+GO
+
 
 create function FUNCTION_FreeDayPlacesForStudents(
 @ConferenceDayID INTEGER
@@ -35,6 +37,7 @@ WHERE cd.conferencedayid = @ConferenceDayID and dp.StudentID is not null
 GROUP BY cd.conferencedayid, cdb.NumberOfStudents
 );
 END;
+GO
 
 
 create function FUNCTION_FreeDayPlaces(
@@ -42,8 +45,9 @@ create function FUNCTION_FreeDayPlaces(
 )
 RETURNS INTEGER AS
 BEGIN
-RETURN (FUNCTION_FreeDayPlacesForParticipants(@ConferenceDayID)+FUNCTION_FreeDayPlacesForStudents(@ConferenceDayID));
+RETURN (dbo.FUNCTION_FreeDayPlacesForParticipants(@ConferenceDayID)+dbo.FUNCTION_FreeDayPlacesForStudents(@ConferenceDayID));
 END;
+GO
 
 --FUNCTION FREEWORKSHOPPLACES
 --Returns number of free places
@@ -65,6 +69,7 @@ WHERE w.WorkshopID = @WorkShopID
 GROUP BY w.WorkshopID, w.numberofparticipants
 );
 END;
+GO
 
 create function FUNCTION_DaysOfConference(
 @ConferenceID INTEGER
@@ -78,6 +83,7 @@ returns @days table
         where cd.Conferences_ConferenceID=@ConferenceID
         return;
     end
+GO
 
 create function FUNCTION_ConferenceDayParticipants(
 @ConferenceDayID INT
@@ -102,6 +108,7 @@ postalcode varchar(10))
     and cdb.IsCancelled=0
     return
 end
+GO
 
 create function FUNCTION_WorkshopsPerConference(
 @ConferenceID INT
@@ -117,10 +124,11 @@ numberofparticipants int
     select w.workshopid,w.name,w.StartTime,w.EndTime,w.cost,w.NumberOfParticipants
     from Workshops as w
     inner join ConferenceDays as cd on
-            cd.ConferenceDayID=w.ConferenceDays_ConferenceDaysID
+            cd.ConferenceDayID=w.ConferenceDays_ConferenceDayID
     where cd.Conferences_ConferenceID=@ConferenceID
     return
 end
+GO
 
 create function FUNCTION_WorkshopDate(
 @WorkshopID INT
@@ -136,6 +144,7 @@ endtime date
     where WorkshopID=@WorkshopID
     return
 end
+GO
 
 CREATE FUNCTION FUNCTION_BookingDaysCost(
 @ConferenceBookingID INTEGER
@@ -155,6 +164,7 @@ WHERE cb.conferencebookingid = @ConferenceBookingID
 GROUP BY cb.conferencebookingid
 );
 END;
+GO
 
 CREATE FUNCTION FUNCTION_BookingWorkshopCost(
 @ConferenceBookID INTEGER
@@ -173,6 +183,7 @@ WHERE cb.conferencebookingid = @ConferenceBookID
 GROUP BY cb.conferencebookingid
 );
 END;
+GO
 
 CREATE FUNCTION FUNCTION_TotalBookingCost(
 @ConferenceBookID INTEGER
@@ -186,6 +197,7 @@ FROM conferencebooking bs
 WHERE bs.conferencebookingid = @ConferenceBookID
 );
 END;
+GO
 
 -- klient -> jego konferencje
 -- participant -> jego dni konferencji
@@ -210,6 +222,7 @@ JOIN workshops as w ON wb.workshops_workshopid = w.workshopid
 WHERE p.participantid = @Participant
 return
 END
+GO
 
 CREATE FUNCTION FUNCTION_ConferencesDaysListForParticipant(
 @Participant INT)
@@ -228,6 +241,7 @@ JOIN Conferences as c ON c.ConferenceID=cd.Conferences_ConferenceID
 WHERE p.participantid = @Participant
 return
 END
+GO
 
 create function FUNCTION_ClientsOrdersList(
 @ClientID INT
@@ -241,3 +255,4 @@ create function FUNCTION_ClientsOrdersList(
         where cl.ClientID=@ClientID
         return
     end
+    GO

@@ -8,6 +8,7 @@ BEGIN
  INSERT INTO Conferences (Name, Place, DiscountForStudents, Description)
  VALUES (@Name, @Place, @DiscountForStudents, @Description);
 END
+GO
 
 CREATE PROCEDURE PROCEDURE_AddConferenceDay(
  @ConferenceID INT,
@@ -18,6 +19,7 @@ BEGIN
  INSERT INTO ConferenceDays (Conferences_ConferenceID, Date, NumberOfParticipants)
  VALUES (@ConferenceID, @Date, @NumberOfParticipants);
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddWorkshop(
@@ -32,6 +34,7 @@ BEGIN
  INSERT INTO Workshops (ConferenceDays_ConferenceDayID, Name, StartTime, EndTime, Cost, NumberOfParticipants)
  VALUES (@ConferenceDayID, @Name, @StartTime, @EndTime, @Cost, @NumberOfParticipants);
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddConferenceCost(
@@ -44,6 +47,7 @@ BEGIN
  INSERT INTO ConferenceCosts (Conferences_ConferenceID, Cost, DateFrom, DateTo)
  VALUES (@ConferenceID, @Cost, @DateFrom, @DateTo);
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_RemoveConference(
@@ -63,6 +67,7 @@ BEGIN
  DELETE FROM Conferences
  WHERE Conferences.ConferenceID = @ConferenceID;
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_UpdateConferenceDetails(
@@ -126,6 +131,7 @@ BEGIN
    END
  END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
@@ -200,6 +206,7 @@ CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
   END
  END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddConferenceBooking(
@@ -231,6 +238,7 @@ BEGIN
   END
  END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddConferenceDayBooking(
@@ -266,6 +274,7 @@ BEGIN
   END
  END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddWorkshopBooking(
@@ -301,6 +310,7 @@ BEGIN
   END
  END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddDayParticipant(
@@ -336,6 +346,7 @@ BEGIN
    END
   END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddWorkshopParticipant(
@@ -370,6 +381,7 @@ BEGIN
    END
   END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddParticipant(
@@ -385,6 +397,7 @@ BEGIN
  INSERT INTO Participants (FirstName, LastName, Email, Street, City, PostalCode, County)
  VALUES (@FirstName, @LastName, @Email, @Street, @City, @PostalCode, @Country);
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_AddClient(
@@ -397,6 +410,7 @@ BEGIN
  INSERT INTO Clients (IsCompany, Name, Surname, Email)
  VALUES (@IsCompany, @Name, @Surname, @Email);
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_CancelConferenceBooking(
@@ -420,6 +434,7 @@ BEGIN
   WHERE @ConferenceBookingID = ConferenceBookingID;
  END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_CancelConferenceDayBooking(
@@ -443,6 +458,7 @@ BEGIN
   WHERE @ConferenceDayBookingID = ConferenceDayBookingID;
  END
 END
+GO
 
 
 
@@ -467,6 +483,7 @@ BEGIN
   WHERE @WorkshopID = WorkshopID;
  END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_UpdateConferenceDayNumberOfParticipants(
@@ -490,6 +507,7 @@ BEGIN
   WHERE @ConferenceDayID = ConferenceDayID;
  END
 END
+GO
 
 
 CREATE PROCEDURE PROCEDURE_ShowConferenceDaysAmountOfParticipants(
@@ -514,6 +532,7 @@ BEGIN
   GROUP BY ConferenceDayID, Date
  END
 END
+GO
 
 
 
@@ -539,3 +558,4 @@ BEGIN
   GROUP BY ConferenceDayID, Date
  END
 END
+GO

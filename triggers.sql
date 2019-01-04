@@ -9,8 +9,9 @@ AS
       BEGIN
         SELECT 'Brak wystarczajacej liczby miejsc w dniu konferencji'
       END
-  END;
-
+  END
+  GO
+show triggers;
 
 -- Sprawdenie wystarczajacej liczby miejsc na warsztacie
 CREATE TRIGGER TRIGGER_TooFewFreePlacesForWorkshopBooking
@@ -23,7 +24,8 @@ AS
       BEGIN
         SELECT 'Brak wystarczajacej liczby miejsc w warsztacie'
       END
-  END;
+  END
+  GO
 
 
 --Blokuje rezerwację na warsztat, jeżeli klient zarezerwował mniej miejsc na dzień niż warsztat.
@@ -37,7 +39,8 @@ AS
       BEGIN
         SELECT 'Klient zarezerwował mniej miejsc na dzień niż na warsztat'
       END
-  END;
+  END
+  GO
 
 
 --Blokuje zapis uczestnika na dzień konferencji, jeżeli wszystkie miejsca od klienta są już zajęte.
@@ -56,7 +59,8 @@ AS
       BEGIN
         SELECT 'Wszystkie miejsca klienta zostały już zarezerwowane'
       END
-  END;
+  END
+  GO
 
 
 --Blokuje zapis uczestnika na warsztat, jeżeli wszystkie zarezerwowane miejsca są już zajęte.
@@ -72,7 +76,8 @@ AS
       BEGIN
         SELECT 'Wszystkie zarezerwowane miejsca są już zajęte'
       END
-  END;
+  END
+  GO
 
 
 --Pilnuje czy po zmniejszeniu liczby miejsc na dzień konferencji zarezerwowane miejsca mieszczą się w nowym limicie.
@@ -90,7 +95,8 @@ AS
       BEGIN
         SELECT 'Po zmniejszeniu liczby miejsc na dzień konferencji zarezerwowane miejsca nie mieszczą się w nowym limicie'
       END
-  END;
+  END
+  GO
 
 
 --Pilnuje czy po zmniejszeniu liczby miejsc na warsztat zarezerwowane miejsca mieszczą sie w nowym limicie.
@@ -108,7 +114,8 @@ AS
       BEGIN
         SELECT 'Po zmniejszeniu liczby miejsc na warsztat zarezerwowane miejsca nie mieszczą się w nowym limicie'
       END
-  END;
+  END
+  GO
 
 
 --Sprawdza, czy rezerwowany jest dzień z konferencji odpowiadającej rezerwacji na konferencję. Tzn. klient zarezerwował jedną konferencję i nie próbuje przypisać do niej rezerwację na dzień z innej konferencji.
@@ -129,7 +136,8 @@ AS
       BEGIN
         SELECT 'Klient próbuje przepisać do konferencji rezerwację dnia z innej konferencji'
       END
-  END;
+  END
+  GO
 
 
 --Sprawdza, czy rezerwacja danego dnia konferencji już istnieje.
@@ -148,8 +156,8 @@ AS
       BEGIN
         SELECT 'Rezerwacja danego dnia konferencji nie istnieje'
       END
-  END;
-
+  END
+GO
 
 --Sprawdza, czy rezerwowany jest warsztat z dnia odpowiadającemu rezerwacji na dzień.
 CREATE TRIGGER TRIGGER_BookingDayInDifferentConference
