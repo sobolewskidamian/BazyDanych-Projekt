@@ -11,7 +11,7 @@ AS
       END
   END
   GO
-show triggers;
+
 
 -- Sprawdenie wystarczajacej liczby miejsc na warsztacie
 CREATE TRIGGER TRIGGER_TooFewFreePlacesForWorkshopBooking
