@@ -154,7 +154,7 @@ AS
                             AND a.ConferenceDays_ConferenceDayID = cbd.ConferenceDays_ConferenceDayID
               WHERE a.ConferenceBooking_ConferenceBookingID != cbd.ConferenceBooking_ConferenceBookingID)
       BEGIN
-        SELECT 'Rezerwacja danego dnia konferencji nie istnieje'
+        SELECT 'Rezerwacja danego dnia konferencji już istnieje'
       END
   END
 GO
@@ -175,7 +175,7 @@ AS
                      INNER JOIN ConferenceDays AS cd2 ON cd2.ConferenceDayID = cdb.ConferenceDays_ConferenceDayID
               WHERE cd1.Conferences_ConferenceID != cd2.Conferences_ConferenceID)
       BEGIN
-        SELECT 'Klient próbuje przepisać do warsztat z innego dnia niż jego rezerwacja'
+        SELECT 'Klient próbuje przypisać się do warsztatu z innego dnia niż jego rezerwacja'
       END
   END
   GO
