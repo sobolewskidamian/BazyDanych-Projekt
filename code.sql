@@ -42,7 +42,7 @@ CREATE TABLE Workshops (
     Cost decimal(9,2) NOT NULL DEFAULT 0,
     NumberOfParticipants int NOT NULL DEFAULT 10,
     CONSTRAINT NonnegativeCostWorkshop CHECK (Cost >= 0),
-    CONSTRAINT ProperTimeDifferance CHECK (StartTime < EndTime),
+    CONSTRAINT ProperTimeDifferance CHECK (StartTime <= EndTime),
     CONSTRAINT PosiviteWorkshopParticipants CHECK (NumberOfParticipants > 0),
     CONSTRAINT Workshops_pk PRIMARY KEY (WorkshopID)
 );
@@ -194,7 +194,7 @@ GO
 create view view_MostPopularWorkshops as
 select top 10 conf.name as ConferenceName,w.workshopid,w.name,isnull(sum(wp.workshopparticipantid),0) as popularnosc
 from Workshops as w
-inner join conferencedays as cd on cd.conferencedayid=w.ConferenceDays_ConferenceDaysID
+inner join conferencedays as cd on cd.conferencedayid=w.ConferenceDays_ConferenceDayID
 inner join conferences as conf on conf.conferenceid=cd.Conferences_ConferenceID
 inner join WorkshopBooking as wb on wb.Workshops_WorkshopID=w.WorkshopID
 inner join WorkshopParticipants as wp on wp.WorkshopBooking_WorkshopBookingID=wb.workshopbookingid
@@ -226,7 +226,7 @@ GO
 create view view_MostPopularWorkshopsByStudents as
 select top 10 conf.name as ConferenceName,w.workshopid,w.name,isnull(sum(wp.workshopparticipantid),0) as popularnosc
 from Workshops as w
-inner join conferencedays as cd on cd.conferencedayid=w.ConferenceDays_ConferenceDaysID
+inner join conferencedays as cd on cd.conferencedayid=w.ConferenceDays_ConferenceDayID
 inner join conferences as conf on conf.conferenceid=cd.Conferences_ConferenceID
 inner join WorkshopBooking as wb on wb.Workshops_WorkshopID=w.WorkshopID
 inner join WorkshopParticipants as wp on wp.WorkshopBooking_WorkshopBookingID=wb.workshopbookingid
@@ -243,7 +243,7 @@ inner join ConferenceCosts as cc on cc.Conferences_ConferenceID=c.ConferenceID
 inner join (select con.ConferenceID, (
     select isnull(sum(w.Cost),0) as koszta
     from conferencedays as cd
-    inner join Workshops as w on w.ConferenceDays_ConferenceDaysID=cd.ConferenceDayID
+    inner join Workshops as w on w.ConferenceDays_ConferenceDayID=cd.ConferenceDayID
     where cd.Conferences_ConferenceID=con.ConferenceID) as koszt
            from Conferences as con) as a on c.ConferenceID=a.ConferenceID
 order by cena
@@ -252,7 +252,7 @@ GO
 create view view_MostProfitableWorkshops as
 select top 10 c.name as NazwaKonferencji,w.name,w.cost
 from Workshops as w
-inner join ConferenceDays as cd on cd.ConferenceDayID=w.ConferenceDays_ConferenceDaysID
+inner join ConferenceDays as cd on cd.ConferenceDayID=w.ConferenceDays_ConferenceDayID
 inner join Conferences as c on c.ConferenceID=cd.Conferences_ConferenceID
 order by w.cost desc
 GO
@@ -271,7 +271,7 @@ ON wb.workshops_workshopid = w.workshopid
 join WorkshopParticipants as wp
     on wp.WorkshopBooking_WorkshopBookingID=wb.WorkshopBookingID
 JOIN conferencedays as cd
-on cd.conferencedayid = w.conferencedays_conferencedaysid
+on cd.conferencedayid = w.conferencedays_conferencedayid
 JOIN conferences as c on c.conferenceid = cd.conferences_conferenceid
 GROUP BY w.workshopid, w.name, w.numberofparticipants,
 c.name
@@ -1211,7 +1211,7 @@ AS
   END
   GO
 
-CREATE TRIGGER TRIGGER_TooFewPlacesAfterDecreasingDayCapacity
+CREATE TRIGGER TRIGGER_TooFewPlacesAfterDecreasingWorkshopCapacity
   ON Workshops
   AFTER UPDATE
 AS
@@ -1266,7 +1266,7 @@ AS
   END
 GO
 
-CREATE TRIGGER TRIGGER_BookingDayInDifferentConference
+CREATE TRIGGER TRIGGER_BookingWorkshopInDifferentDay
   ON WorkshopBooking
   AFTER INSERT
 AS
