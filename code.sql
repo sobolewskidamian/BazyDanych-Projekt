@@ -833,7 +833,7 @@ CREATE PROCEDURE PROCEDURE_ShowConferenceDaysAmountOfParticipants(
  @ConferenceID INT)
  AS
 BEGIN
- IF EXISTS(
+ IF NOT EXISTS(
    SELECT * FROM Conferences
    WHERE @ConferenceID = ConferenceID
  )
@@ -854,25 +854,22 @@ END
 GO
 
 CREATE PROCEDURE PROCEDURE_ShowListOfEventsOfConference(
- @ConferenceID INT)
+ @ConferenceDayID INT)
  AS
 BEGIN
- IF EXISTS(
-   SELECT * FROM Conferences
-   WHERE @ConferenceID = ConferenceID
+ IF NOT EXISTS(
+   SELECT * FROM ConferenceDays
+   WHERE @ConferenceDayID = ConferenceDayID
  )
  BEGIN
-  SELECT 'Nie znaleziono ConferenceID'
+  SELECT 'Nie znaleziono ConferenceDayID'
  END
 
  ELSE
 
  BEGIN
-  SELECT ConferenceDayID, Date, SUM(ConferenceDayBooking.NumberOfParticipants) AS Participants, SUM(NumberOfStudents) as Students FROM ConferenceDays
-  INNER JOIN ConferenceDayBooking
-      ON ConferenceDayID = ConferenceDays_ConferenceDayID
-  WHERE Conferences_ConferenceID = @ConferenceID AND IsCancelled = 0
-  GROUP BY ConferenceDayID, Date
+  SELECT WorkshopID, Name, StartTime, EndTime, Cost, NumberOfParticipants from Workshops
+  WHERE ConferenceDays_ConferenceDayID=@ConferenceDayID
  END
 END
 GO
