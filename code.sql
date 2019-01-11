@@ -112,7 +112,6 @@ CREATE TABLE DayParticipants (
     ConferenceDayBooking_ConferenceDayBookingID int NOT NULL,
     Participants_ParticipantID int NOT NULL,
     StudentID varchar(6) NULL DEFAULT null,
-    CONSTRAINT ProperStudentID CHECK (StudentID LIKE '^\d{6}$' OR StudentID IS NULL),
     CONSTRAINT DayParticipants_pk PRIMARY KEY (DayParticipantID)
 );
 GO
