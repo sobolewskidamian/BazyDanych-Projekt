@@ -190,6 +190,20 @@ ALTER TABLE WorkshopParticipants ADD CONSTRAINT WorkshopParticipants_WorkshopBoo
     REFERENCES WorkshopBooking (WorkshopBookingID)
 GO
 
+
+CREATE INDEX Client on Clients (ClientID ASC)
+CREATE INDEX Client_ConferenceBooking on ConferenceBooking (Clients_ClientID ASC)
+CREATE INDEX ConferenceBook on ConferenceDayBooking (ConferenceDayBookingID ASC)
+CREATE INDEX ConferenceDay on ConferenceDayBooking (ConferenceDays_ConferenceDayID ASC)
+CREATE INDEX NumberOfParticipantsInConferenceDay on ConferenceDays (NumberOfParticipants ASC)
+CREATE INDEX Conference on ConferenceDays (Conferences_ConferenceID ASC)
+CREATE INDEX Participant on DayParticipants (DayParticipantID ASC)
+CREATE INDEX ConferenceDayBook on WorkshopBooking (ConferenceDayBooking_ConferenceDayBookingID ASC)
+CREATE INDEX DayParticipant on WorkshopParticipants (DayParticipants_DayParticipantID ASC)
+CREATE INDEX NumberOfParticipantsInWorkshop on Workshops (NumberOfParticipants ASC)
+CREATE INDEX ConferenceDayID on Workshops (ConferenceDays_ConferenceDayID ASC)
+
+
 create view view_MostPopularWorkshops as
 select top 10 conf.name as ConferenceName,w.workshopid,w.name,isnull(sum(wp.workshopparticipantid),0) as popularnosc
 from Workshops as w
