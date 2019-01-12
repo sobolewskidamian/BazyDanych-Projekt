@@ -58,7 +58,7 @@ IF NOT EXISTS(
  WHERE @ConferenceID = ConferenceID
 )
 BEGIN
- SELECT 'Nie znaleziono konferencji'
+ THROW 50000, 'Nie znaleziono konferencji',1
 END
 
 ELSE
@@ -83,7 +83,7 @@ BEGIN
   WHERE @ConferenceID = ConferenceID
  )
  BEGIN
-  SELECT 'Nie znaleziono konferencji'
+  THROW 50000, 'Nie znaleziono konferencji',1
  END
 
  ELSE
@@ -97,7 +97,7 @@ BEGIN
   END
   ELSE
    BEGIN
-    SELECT 'ConferenceID is null'
+    THROW 50000, 'ConferenceID is null',1
    END
   IF @DiscountForStudents IS NOT NULL
   BEGIN
@@ -107,7 +107,7 @@ BEGIN
   END
   ELSE
    BEGIN
-    SELECT 'DiscountForStudents is null'
+    THROW 50000, 'DiscountForStudents is null',1
    END
   IF @Place IS NOT NULL
   BEGIN
@@ -117,7 +117,7 @@ BEGIN
   END
   ELSE
    BEGIN
-    SELECT 'Place is null'
+    THROW 50000, 'Place is null',1
    END
   IF @Description IS NOT NULL
   BEGIN
@@ -127,7 +127,7 @@ BEGIN
   END
   ELSE
    BEGIN
-    SELECT 'Description is null'
+    THROW 50000, 'Description is null',1
    END
  END
 END
@@ -148,7 +148,7 @@ CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
   WHERE @WorkshopID = WorkshopID
  )
   BEGIN
-  SELECT 'Nie znaleziono warsztatu'
+  THROW 50000, 'Nie znaleziono warsztatu',1
  END
 
  ELSE
@@ -162,7 +162,7 @@ CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
   END
   ELSE
   BEGIN
-   SELECT 'WorkshopID is null'
+   THROW 50000, 'WorkshopID is null',1
   END
   IF @StartTime IS NOT NULL
   BEGIN
@@ -172,7 +172,7 @@ CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
   END
   ELSE
   BEGIN
-   SELECT 'StartTime is null'
+   THROW 50000, 'StartTime is null',1
   END
   IF @EndTime IS NOT NULL
   BEGIN
@@ -182,7 +182,7 @@ CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
   END
   ELSE
   BEGIN
-   SELECT 'EndTime is null'
+   THROW 50000, 'EndTime is null',1
   END
   IF @Cost IS NOT NULL
   BEGIN
@@ -192,7 +192,7 @@ CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
   END
   ELSE
   BEGIN
-   SELECT 'Cost is null'
+   THROW 50000, 'Cost is null',1
   END
   IF @NumberOfParticipants IS NOT NULL
   BEGIN
@@ -202,7 +202,7 @@ CREATE PROCEDURE PROCEDURE_UpdateWorkshopDetails(
   END
   ELSE
   BEGIN
-   SELECT 'NumberOfParticipants is null'
+   THROW 50000, 'NumberOfParticipants is null',1
   END
  END
 END
@@ -220,7 +220,7 @@ BEGIN
   WHERE @ConferenceID = ConferenceID
  )
   BEGIN
-  SELECT 'Nie znaleziono konferencji'
+  THROW 50000, 'Nie znaleziono konferencji',1
  END
 
  ELSE
@@ -256,7 +256,7 @@ BEGIN
   WHERE @ConferenceBookingID = ConferenceBookingID
  )
   BEGIN
-  SELECT 'Nie znaleziono ConferenceDayID lub ConferenceBookingID'
+  THROW 50000, 'Nie znaleziono ConferenceDayID lub ConferenceBookingID',1
  END
 
  ELSE
@@ -292,7 +292,7 @@ BEGIN
   WHERE @ConferenceDayBookingID = ConferenceDayBookingID
  )
   BEGIN
-  SELECT 'Nie znaleziono WorkshopID lub ConferenceDayBookingID'
+  THROW 50000, 'Nie znaleziono WorkshopID lub ConferenceDayBookingID',1
  END
 
  ELSE
@@ -324,7 +324,7 @@ BEGIN
    WHERE @ConferenceDayBookingID = ConferenceDayBookingID
   )
   BEGIN
-   SELECT 'Nie znaleziono ConferenceDayBookingID'
+   THROW 50000, 'Nie znaleziono ConferenceDayBookingID',1
   END
 
   ELSE
@@ -335,7 +335,7 @@ BEGIN
     WHERE @ParticipantID = ParticipantID
    )
    BEGIN
-    SELECT 'Nie znaleziono ParticipantID'
+    THROW 50000, 'Nie znaleziono ParticipantID',1
    END
 
    ELSE
@@ -359,7 +359,7 @@ BEGIN
    WHERE @WorkshopBookingID = WorkshopBookingID
   )
   BEGIN
-   SELECT 'Nie znaleziono WorkshopBookingID'
+   THROW 50000, 'Nie znaleziono WorkshopBookingID',1
   END
 
   ELSE
@@ -370,7 +370,7 @@ BEGIN
     WHERE @DayParticipantID = ParticipantID
    )
    BEGIN
-    SELECT 'Nie znaleziono ParticipantID'
+    THROW 50000, 'Nie znaleziono ParticipantID',1
    END
 
    ELSE
@@ -423,7 +423,7 @@ BEGIN
  )
  OR NOT (SELECT IsCanceled FROM ConferenceBooking WHERE @ConferenceBookingID = ConferenceBookingID)=0
  BEGIN
-  SELECT 'Nie znaleziono ConferenceBookingID lub rezerwacja została już wcześniej anulowana'
+  THROW 50000, 'Nie znaleziono ConferenceBookingID lub rezerwacja została już wcześniej anulowana',1
  END
 
  ELSE
@@ -452,7 +452,7 @@ BEGIN
  )
  OR NOT (SELECT IsCancelled FROM ConferenceDayBooking WHERE @ConferenceDayBookingID = ConferenceDayBookingID)=0
  BEGIN
-  SELECT 'Nie znaleziono ConferenceDayBookingID lub rezerwacja została już wcześniej anulowana'
+  THROW 50000, 'Nie znaleziono ConferenceDayBookingID lub rezerwacja została już wcześniej anulowana',1
  END
 
  ELSE
@@ -477,7 +477,7 @@ BEGIN
    WHERE @WorkshopID = WorkshopID
  )
  BEGIN
-  SELECT 'Nie znaleziono WorkshopID'
+  THROW 50000, 'Nie znaleziono WorkshopID',1
  END
 
  ELSE
@@ -501,7 +501,7 @@ BEGIN
    WHERE @ConferenceDayID = ConferenceDayID
  )
  BEGIN
-  SELECT 'Nie znaleziono ConferenceDayID'
+  THROW 50000, 'Nie znaleziono ConferenceDayID',1
  END
 
  ELSE
@@ -524,7 +524,7 @@ BEGIN
    WHERE @ConferenceID = ConferenceID
  )
  BEGIN
-  SELECT 'Nie znaleziono ConferenceID'
+  THROW 50000, 'Nie znaleziono ConferenceID',1
  END
 
  ELSE
@@ -550,7 +550,7 @@ BEGIN
    WHERE @ConferenceID = ConferenceID
  )
  BEGIN
-  SELECT 'Nie znaleziono ConferenceID'
+  THROW 50000, 'Nie znaleziono ConferenceID',1
  END
 
  ELSE
