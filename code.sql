@@ -1177,7 +1177,7 @@ AS
     SET NOCOUNT ON
     IF EXISTS(SELECT * FROM inserted as a WHERE dbo.FUNCTION_FreeDayPlaces(a.ConferenceDays_ConferenceDayID) < 0)
       BEGIN
-        SELECT 'Brak wystarczajacej liczby miejsc w dniu konferencji'
+        THROW 50000, 'Brak wystarczajacej liczby miejsc w dniu konferencji',1
       END
   END
   GO
@@ -1190,7 +1190,7 @@ AS
     SET NOCOUNT ON
     IF EXISTS(SELECT * FROM inserted as a WHERE dbo.FUNCTION_FreeWorkshopPlaces(a.Workshops_WorkshopID) < 0)
       BEGIN
-        SELECT 'Brak wystarczajacej liczby miejsc w warsztacie'
+        THROW 50000, 'Brak wystarczajacej liczby miejsc w warsztacie',1
       END
   END
   GO
@@ -1203,7 +1203,7 @@ AS
     SET NOCOUNT ON;
     IF EXISTS(SELECT * FROM inserted AS a WHERE dbo.FUNCTION_FreeDayPlaces(a.ConferenceDays_ConferenceDayID) < 0)
       BEGIN
-        SELECT 'Klient zarezerwował mniej miejsc na dzień niż na warsztat'
+        THROW 50000, 'Klient zarezerwował mniej miejsc na dzień niż na warsztat',1
       END
   END
   GO
@@ -1221,7 +1221,7 @@ AS
                  OR (a.StudentID IS NULL
                        AND dbo.FUNCTION_FreeDayPlacesForParticipants(a.ConferenceDayBooking_ConferenceDayBookingID) < 0))
       BEGIN
-        SELECT 'Wszystkie miejsca klienta zostały już zarezerwowane'
+        THROW 50000, 'Wszystkie miejsca klienta zostały już zarezerwowane',1
       END
   END
   GO
@@ -1236,7 +1236,7 @@ AS
               FROM inserted AS a
               WHERE dbo.FUNCTION_FreeWorkshopPlaces(a.WorkshopBooking_WorkshopBookingID) < 0)
       BEGIN
-        SELECT 'Wszystkie zarezerwowane miejsca są już zajęte'
+        THROW 50000, 'Wszystkie zarezerwowane miejsca są już zajęte',1
       END
   END
   GO
@@ -1253,7 +1253,7 @@ AS
               GROUP BY a.ConferenceDayID, a.NumberOfParticipants
               HAVING a.NumberOfParticipants < SUM(cdb.NumberOfParticipants) + SUM(cdb.NumberOfStudents))
       BEGIN
-        SELECT 'Po zmniejszeniu liczby miejsc na dzień konferencji zarezerwowane miejsca nie mieszczą się w nowym limicie'
+        THROW 50000, 'Po zmniejszeniu liczby miejsc na dzień konferencji zarezerwowane miejsca nie mieszczą się w nowym limicie',1
       END
   END
   GO
@@ -1270,7 +1270,7 @@ AS
               GROUP BY a.WorkshopID, a.NumberOfParticipants
               HAVING a.NumberOfParticipants < SUM(wb.NumberOfParticipants))
       BEGIN
-        SELECT 'Po zmniejszeniu liczby miejsc na warsztat zarezerwowane miejsca nie mieszczą się w nowym limicie'
+        THROW 50000, 'Po zmniejszeniu liczby miejsc na warsztat zarezerwowane miejsca nie mieszczą się w nowym limicie',1
       END
   END
   GO
@@ -1290,7 +1290,7 @@ AS
                      INNER JOIN Conferences AS c2 ON c2.ConferenceID = cb.Conferences_ConferenceID
               WHERE c1.ConferenceID != c2.ConferenceID)
       BEGIN
-        SELECT 'Klient próbuje przepisać do konferencji rezerwację dnia z innej konferencji'
+        THROW 50000, 'Klient próbuje przepisać do konferencji rezerwację dnia z innej konferencji',1
       END
   END
   GO
@@ -1308,7 +1308,7 @@ AS
                             AND a.ConferenceDays_ConferenceDayID = cbd.ConferenceDays_ConferenceDayID
               WHERE a.ConferenceBooking_ConferenceBookingID != cbd.ConferenceBooking_ConferenceBookingID)
       BEGIN
-        SELECT 'Rezerwacja danego dnia konferencji już istnieje'
+        THROW 50000, 'Rezerwacja danego dnia konferencji już istnieje',1
       END
   END
 GO
@@ -1328,7 +1328,7 @@ AS
                      INNER JOIN ConferenceDays AS cd2 ON cd2.ConferenceDayID = cdb.ConferenceDays_ConferenceDayID
               WHERE cd1.Conferences_ConferenceID != cd2.Conferences_ConferenceID)
       BEGIN
-        SELECT 'Klient próbuje przypisać się do warsztatu z innego dnia niż jego rezerwacja'
+        THROW 50000, 'Klient próbuje przypisać się do warsztatu z innego dnia niż jego rezerwacja',1
       END
   END
   GO
@@ -1349,7 +1349,7 @@ AS
                        OR (a.DateFrom >= cc.DateFrom AND cc.DateTo >= a.DateTo))
                 AND cc.ConferenceCostID != a.ConferenceCostID)
       BEGIN
-        SELECT 'Koszt pokrywa się z istniejącymi kosztami'
+        THROW 50000, 'Koszt pokrywa się z istniejącymi kosztami',1
       END
     ELSE
       BEGIN
@@ -1370,9 +1370,9 @@ AS
         IF ((@PreviousCost IS NOT NULL AND @PreviousCost >= @Cost)
             OR (@NextCost IS NOT NULL AND @NextCost <= @Cost))
           BEGIN
-            SELECT 'Cena nie jest w poprawnej kolejności z poprzednimi (PreviousCost = %, NextCost = %.',
+            THROW 50000, 'Cena nie jest w poprawnej kolejności z poprzednimi (PreviousCost = %, NextCost = %.,
                    @PreviousCost,
-                   @NextCost;
+                   @NextCost',1;
           END
       END
   END
