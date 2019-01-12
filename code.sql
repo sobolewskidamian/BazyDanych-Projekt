@@ -767,6 +767,11 @@ BEGIN
   SET IsCanceled = 1
   WHERE @ConferenceBookingID = ConferenceBookingID;
  END
+ BEGIN
+  UPDATE ConferenceDayBooking
+  SET IsCancelled = 1
+  WHERE @ConferenceBookingID = ConferenceBooking_ConferenceBookingID;
+ END
 END
 GO
 
@@ -793,6 +798,7 @@ BEGIN
  END
 END
 GO
+
 
 
 CREATE PROCEDURE PROCEDURE_UpdateWorkShopNumberOfParticipants(
@@ -842,11 +848,12 @@ BEGIN
 END
 GO
 
+
 CREATE PROCEDURE PROCEDURE_ShowConferenceDaysAmountOfParticipants(
  @ConferenceID INT)
  AS
 BEGIN
- IF NOT EXISTS(
+ IF EXISTS(
    SELECT * FROM Conferences
    WHERE @ConferenceID = ConferenceID
  )
@@ -866,24 +873,54 @@ BEGIN
 END
 GO
 
+
+
 CREATE PROCEDURE PROCEDURE_ShowListOfEventsOfConference(
- @ConferenceDayID INT)
+ @ConferenceID INT)
  AS
 BEGIN
- IF NOT EXISTS(
-   SELECT * FROM ConferenceDays
-   WHERE @ConferenceDayID = ConferenceDayID
+ IF EXISTS(
+   SELECT * FROM Conferences
+   WHERE @ConferenceID = ConferenceID
  )
  BEGIN
-  SELECT 'Nie znaleziono ConferenceDayID'
+  SELECT 'Nie znaleziono ConferenceID'
  END
 
  ELSE
 
  BEGIN
-  SELECT WorkshopID, Name, StartTime, EndTime, Cost, NumberOfParticipants from Workshops
-  WHERE ConferenceDays_ConferenceDayID=@ConferenceDayID
+  SELECT ConferenceDayID, Date, SUM(ConferenceDayBooking.NumberOfParticipants) AS Participants, SUM(NumberOfStudents) as Students FROM ConferenceDays
+  INNER JOIN ConferenceDayBooking
+      ON ConferenceDayID = ConferenceDays_ConferenceDayID
+  WHERE Conferences_ConferenceID = @ConferenceID AND IsCancelled = 0
+  GROUP BY ConferenceDayID, Date
  END
+END
+GO
+
+
+CREATE PROCEDURE PROCEDURE_CancelConferenceBookingWithoutPayingAfterSevenDays
+ AS
+BEGIN
+UPDATE ConferenceBooking
+SET IsCanceled=1
+ FROM(
+ SELECT * FROM ConferenceBooking
+ LEFT JOIN Payments
+     ON ConferenceBookingID=ConferenceBooking_ConferenceBookingID
+ WHERE IsCanceled=0 AND PaymentID IS NULL AND DATEDIFF(DAY, BookingDate, getdate())>7) as a
+WHERE ConferenceBooking.ConferenceBookingID=a.ConferenceBookingID
+END
+ BEGIN
+ UPDATE ConferenceDayBooking
+SET IsCancelled=1
+ FROM(
+ SELECT ConferenceDayBookingID AS ID FROM ConferenceBooking
+ INNER JOIN ConferenceDayBooking
+     on ConferenceBookingID=ConferenceBooking_ConferenceBookingID
+ WHERE ConferenceBooking.IsCanceled=1 AND ConferenceDayBooking.IsCancelled=0) as b
+WHERE ConferenceDayBookingID=b.ID
 END
 GO
 

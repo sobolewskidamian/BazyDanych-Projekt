@@ -433,6 +433,11 @@ BEGIN
   SET IsCanceled = 1
   WHERE @ConferenceBookingID = ConferenceBookingID;
  END
+ BEGIN
+  UPDATE ConferenceDayBooking
+  SET IsCancelled = 1
+  WHERE @ConferenceBookingID = ConferenceBooking_ConferenceBookingID;
+ END
 END
 GO
 
@@ -557,5 +562,30 @@ BEGIN
   WHERE Conferences_ConferenceID = @ConferenceID AND IsCancelled = 0
   GROUP BY ConferenceDayID, Date
  END
+END
+GO
+
+
+CREATE PROCEDURE PROCEDURE_CancelConferenceBookingWithoutPayingAfterSevenDays
+ AS
+BEGIN
+UPDATE ConferenceBooking
+SET IsCanceled=1
+ FROM(
+ SELECT * FROM ConferenceBooking
+ LEFT JOIN Payments
+     ON ConferenceBookingID=ConferenceBooking_ConferenceBookingID
+ WHERE IsCanceled=0 AND PaymentID IS NULL AND DATEDIFF(DAY, BookingDate, getdate())>7) as a
+WHERE ConferenceBooking.ConferenceBookingID=a.ConferenceBookingID
+END
+ BEGIN
+ UPDATE ConferenceDayBooking
+SET IsCancelled=1
+ FROM(
+ SELECT ConferenceDayBookingID AS ID FROM ConferenceBooking
+ INNER JOIN ConferenceDayBooking
+     on ConferenceBookingID=ConferenceBooking_ConferenceBookingID
+ WHERE ConferenceBooking.IsCanceled=1 AND ConferenceDayBooking.IsCancelled=0) as b
+WHERE ConferenceDayBookingID=b.ID
 END
 GO
