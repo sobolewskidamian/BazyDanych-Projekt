@@ -26,11 +26,14 @@ AS
 
 CREATE TRIGGER TRIGGER_LessPlacesForDayThanForWorkshop
   ON ConferenceDayBooking
-  AFTER INSERT, UPDATE
+  AFTER INSERT
 AS
   BEGIN
     SET NOCOUNT ON;
-    IF EXISTS(SELECT * FROM inserted AS a WHERE dbo.FUNCTION_FreeDayPlaces(a.ConferenceDays_ConferenceDayID) < 0)
+    IF EXISTS(SELECT * FROM inserted AS a
+    INNER JOIN WorkshopBooking as b
+    ON b.ConferenceDayBooking_ConferenceDayBookingID=a.ConferenceDayBookingID
+    WHERE a.NumberOfParticipants<b.NumberOfParticipants)
       BEGIN
         THROW 50000, 'Klient zarezerwował mniej miejsc na dzień niż na warsztat',1
       END
